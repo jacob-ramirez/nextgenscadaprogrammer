@@ -11,7 +11,7 @@ phases:
         commands:
             - echo "we are in the build block"
             - echo "we will run some tests"
-            - grep -R '<title>Next Gen SCADA Programmer Blog Jacob Ramirez/|>Jacob Ramirez' /*.html
+            - grep -R '<title>Next Gen SCADA Programmer Blog Jacob Ramirez' /*.html
     post_build:
         commands:
             - echo "we are in the post build phase"
