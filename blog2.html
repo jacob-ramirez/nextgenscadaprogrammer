@@ -70,65 +70,41 @@ img.emoji {
             
 <div class="page-title group">
 	<div class="container">
-		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 1</a></h2>
+		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 2</a></h2>
 		
 	</div>
 </div><!--/.page-title-->		
 <div id="page">
 	<div class="container group">
         <div class="content">
-	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">June 18, 2021</div>
+	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">July 01, 2021</div>
 	        <div class="pad group">
 		        <article class="post-13 post type-post status-publish format-standard hentry category-uncategorized">	
-				<h1 class="post-title">Killing a Dormant Session in an Ignition HMI</h1>
-				<div class="entry">	
-                    <p>In the automation world I live in where all clients are using an HMI over a VPN using a cellular connection in the middle of nowhere. With running our clients like this, we run into a lot of dormant client sessions. We suspect this is because the client never ended their session by logging out or closing the application while connected to the VPN. So the gateway never saw the session end and now it is not seeing any traffic from the client session.&nbsp;</p>
-                    <p>This creates problems if you prevent users from logging in twice. We have so many clients that we, on the SCADA team don’t know who the majority of them are, the nature of our business. Also, the turnover rate is very high, so new employees who need to control equipment come in almost every day. So when a user tries to login later after his old session went dormant, the username is still in the client session list on the gateway so it prevents the user from logging in.&nbsp;</p>
-                    <p>Now from the Ignition Javadoc API I couldn’t find a way to get the client session status (active or dormant), so I found a way for another client to kill another client’s dormant session. I had a way to do this for active clients by storing all the sessions in a dataset tag from a gateway scoped script and then the screen would allow the user to terminate the selected client session using message handlers. This process works when the clients are active but not dormant clients.&nbsp;</p>
-                    <p>We did not want to allow the clients to terminate the session via that gateway like we can. And we don’t want to be called all the time for dormant sessions, especially many times throughout the night. I had to find a way to make this happen. After working with support and looking over the Ignition Javadoc API, I found the code below. The functions below have to be ran with gateway scope, so I write the client session ID to a memory tag and when that tag changes run this script below. It terminates any client session, dormant or active.&nbsp;</p>
-                    <p>The first line is commented because we are currently running 7.9 and not 8.0, if running 8.0 use the first line and comment the 2nd. I find it helpful to really understand the functions by reading the documentation on it. I like to know the data types/object types and all functions available to me from that object. Using an SDK like this is very normal for me, my first programming language to learn was Java. In college, we had to use the Java API to find functions to work with in our projects.&nbsp;</p>
-                    <p>The blue text is the actual classes/interfaces to search for in the SDK to find the functions I am using. Basically the script is doing this, we are getting objects created to access gateway related functions (<code>sessionManger = SRContext.get().getGatewaySessionManager()</code>). Then we need to get all client sessions (<code>sessions = sessionManager.findSessions(ApplicationScope.CLIENT)</code>). Which returns all the sessions in an ArrayList. Now we can loop through them and find the one that matches because we need the <code>ClientReqSession </code>object and not simply the string text of the <code>clientID</code>. When finding the matching <code>ClientReqSession </code>that matches the <code>clientID </code>that was passed into the tag, then we can kill the session. We achieve this by setting the max inactive interval of 0. It does provide a message when its your active session. The line to provide the admin user is actually unnecessary, it works without it.&nbsp;</p>
-                    <p>I hope this helps anyone with this same problem as me with allowing others to kill dormant client sessions via the HMI instead of gateway webpage. It has been a life saver. You can find the code here on my Github page <a href="https://github.com/jacob-ramirez/blog-sample-code/blob/master/Blog1/code.py">Blog1</a>.</p>
-                    <p>Until next time, continue coding.&nbsp;</p>
-                    <div class="wp-block-group">
-                        <div class="wp-block-group__inner-container">
-                            <pre class="wp-block-preformatted"></pre>
-                                <code># 8.0</code><br>
-                                <code># from com.inductiveautomation.ignition.gateway import IgnitionGateway</code><br>
-                                <code># 7.9</code><br><code>from com.inductiveautomation.ignition.gateway import SRContext</code><br>
-                                <code>from com.inductiveautomation.ignition.common.model import ApplicationScope&nbsp;</code><br>
-                                <code>sessionManager = SRContext.get().getGatewaySessionManager()</code><br>
-                                <code># com.inductiveautomation.ignition.gateway.clientcomm</code><br>
-                                <code># Interface <span style="color: #00b2d7">GatewaySessionManager</span></code><br>
-                                <code># java.util.List&lt;ClientReqSession&gt; findSessions(int scope)</code><br>
-                                <code>sessions = sessionManager.findSessions(ApplicationScope.CLIENT)</code><br>
-                                <code>for session in sessions:</code><br><code># com.inductiveautomation.ignition.gateway.clientcomm</code><br>
-                                <code># Class <span style="color: #00b2d7">ClientReqSession</span></code><br>
-                                <code># Try to find all methods for session variable type</code><br>
-                                <code>clientID = session.getPublicId()</code><br>
-                                <code>if currentValue.value == clientID:</code><br>
-                                <code># user terminating the client</code><br>
-                                <code>userName = ' ' # Put your admin username here</code><br>
-                                <code># notification message sent to this session's client</code><br>
-                                <code># addNotification(java.lang.String moduleId, java.lang.String messageType, java.io.Serializable message)</code><br>
-                                <code># Adds a notification message that will be sent down to this session's client&nbsp;</code><br>
-                                <code># and delivered as a PushNotification.</code><br>
-                                <code>session.addNotification("", "remote-terminate", userName)</code><br>
-                                <code># setMaxInactiveInterval(int interval)</code><br>
-                                <code># Specifies the time, in seconds, between client requests before the servlet&nbsp;</code><br>
-                                <code># container will invalidate this session.</code><br>
-                                <code>session.setMaxInactiveInterval(0)</code><br>
-                                <code>system.tag.write(tagPath, "")</code>
-                            </pre>
-                        </div><!--wp-block-group__inner-container-->
-                    </div><!--wp-block-group-->
-                    <p></p>
-					<div class="clear"></div>				
-				</div><!--/.entry-->
+                    <h1 class="post-title">Clear Ignition Internal Database Project Edits</h1>	
+                    <div class="entry">	
+                        <p>Hello programmers, in this post I'm going to discuss a small bug in 7.9 of Ignition that I've stumbled across and got a work around for it. If you are still using 7.9 like I am, then this is a kind of maintenance you should be doing. The company I work at, we are still using 7.9 because we moved to Ignition 8 and found a major bug in it and decided it was not product ready. </p>
+
+                        <p>When you are working on a project in the designer, you're making edits, saving changes, and publishing changes. All of these get a Edit#. Every edit number is stored in the internal database. After having a project for a year or so, this can get fairly large. In 7.9 it does not ever clear those out by default. </p>
+                        
+                        <p>Now if you're working in Ignition 8 and later, you don't need to worry about this; it clears out these edits at some point. So there is a work around for this to clear out the edits in the internal database just for 7.9. </p>
+                        
+                        <p>You need to go to the projects screen on the configure tab of the gateway. Hit the more button on the project you want to apply this to. Export published or staging version of the project. Now click the "Upload project from a *.proj backup file…" link at the bottom. </p>
+                        
+                        <p>After selecting the project export, select the overture checkbox and click apply. I have done this on a project that people were using and it just notified users that an update is available. Then when you go to the project details screen, there won't be any edits on that page, they will all be gone. </p>
+                        
+                        <p>The steps are also presented here in the user manual: 
+                        <a href="https://docs.inductiveautomation.com/display/DOC79/Project+Restore" >https://docs.inductiveautomation.com/display/DOC79/Project+Restore</a></p>
+                        
+                        <p>I hope this post helps you implement a maintenance task if you ever run into any problems with the internal database. Clearing out the edits can decrease the size of the database alot which can increase its performance. </p>
+                        
+                        <p>Until next time, continue coding.</p>
+                        </p>
+                        <div class="clear"></div>				
+                    </div><!--/.entry-->
 			    </article><!--/.post-->				
 		    <div class="clear"></div>
 		    <div class="clear"></div>
-            
+
                 <!--/. related posts, which link to the previous post -->
                 <h4 class="heading">
                     <i class="fas fa-hand-point-right">
@@ -138,19 +114,18 @@ img.emoji {
                     <li class="related post-hover">
                         <article class="post-11 post type-post status-publish format-standard hentry category-uncategorized">
                             <div class="post-thumbnail">
-                                <a href="blog0.html">
-                                <img src="http://next-gen-scada-programmer-blog.local/wp-content/themes/slanted/img/thumb-medium.png" alt="Blog 0 &#8211; About Me" />
+                                <a href="blog1.html">
+                                <img src="http://next-gen-scada-programmer-blog.local/wp-content/themes/slanted/img/thumb-medium.png" alt="Killing a Dormant Session in an Ignition HMI" />
                                 </a>
                             </div><!--/.post-thumbnail-->
                             <div class="related-inner">
                                 <h6 class="post-title" style="font-size: 20px;">
-                                    <a href="blog0.html" rel="bookmark">Blog 0 &#8211; About Me</a>
+                                    <a href="blog1.html" rel="bookmark">Killing a Dormant Session in an Ignition HMI</a>
                                 </h6><!--/.post-title-->
                             </div><!--/.related-inner-->
                         </article>
                     </li><!--/.related-->
                 </ul><!--/.post-related-->
-
             </div><!--pad-group-->
         </div><!--content-->
     </div><!--container-group-->
