@@ -84,20 +84,20 @@ img.emoji {
                     <div class="entry">	
                         <p>On 3-25-2021, we had our SMTP profile in Ignition using SendGrid start failing. I had sent a test email and viewed the logs. The screenshot below is what was showing up in the log.
                         </p>
-                        <img src="static/images/blog4/Log Error Screenshot.jpg" alt="Log Error Screenshot">
+                        <img src="https://s3.us-east-2.amazonaws.com/nextgenscadaprogrammer.com/static/images/blog4/Log+Error+Screenshot.JPG" alt="Log Error Screenshot">
                         <p>As you can see from the log that I am getting a username and password error. To be more clear since the snippet doesn’t have good quality: it says <code>javax.mail.AuthenticationFailedExeption: 535 Authentication failed: Bad username / password</code>. Now that is not actually the problem here because it was working just fine, then just suddenly stopped. 
                         </p>
                         <p>I hope others that are using SendGrid for their email provider find this blog to fix this same problem because I bet others will have this problem as well. After doing some research into what had happened here, I found this link: <a href="https://sendgrid.com/docs/for-developers/sending-email/authentication/#basic-authentication">SendGrid Authentication</a>. Now after reading through the article you will come across this section here.
                         </p>
-                        <img src="static/images/blog4/SendGrid Authentication Update Screenshot.jpg" alt="SendGrid Authentication Update Screenshot">
+                        <img src="https://s3.us-east-2.amazonaws.com/nextgenscadaprogrammer.com/static/images/blog4/SendGrid+Authentication+Update+Screenshot.JPG" alt="SendGrid Authentication Update Screenshot">
                         <p>In the SMTP profile creation it only asks for username and password, not the API key. 
                         </p>
-                        <img src="static/images/blog4/SMTP_Profile_Setup.jpg" alt="SMTP_Profile_Setup">
+                        <img src="https://s3.us-east-2.amazonaws.com/nextgenscadaprogrammer.com/static/images/blog4/SMTP_Profile_Setup.JPG" alt="SMTP_Profile_Setup">
                         <p>From the article you can see that basic authentication (using username as the ‘apikey’ and password as the API key) was discontinued in Q4 of 2020. I don’t know if there was a delay in that and that is why it continued to work with basic authentication until now. 
                         </p>
                         <p>After looking at the SMTP profile setup in Ignition for awhile, I contacted another programmer that works with me and got the ‘apikey’. He suggested to put ‘apikey’ in the username field and the actual API key in the password field. Here’s a snippet of that setup below.
                         </p>
-                        <img src="static/images/blog4/SMTP_Profile_Solution.jpg" alt="SMTP_Profile_Solution">
+                        <img src="https://s3.us-east-2.amazonaws.com/nextgenscadaprogrammer.com/static/images/blog4/SMTP_Profile_Solution.JPG" alt="SMTP_Profile_Solution">
                         <p>Another field I had to set was the port (465) and enable SSL. After setting these fields to the values shown, emails started working again using that SMTP profile. 
                         </p>
                         <p>I hope other Ignition developers find this when they run into this problem. 
