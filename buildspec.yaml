@@ -12,6 +12,7 @@ phases:
             - echo "we are in the build block"
             - echo "we will run some tests"
             - grep -ER '<title>Next Gen SCADA Programmer Blog Jacob Ramirez</title>|<p class="site-description">Jacob Ramirez</p>' *.html
+            - grep -ER '<h1>' *.html
     post_build:
         commands:
             - echo "we are in the post build phase"
