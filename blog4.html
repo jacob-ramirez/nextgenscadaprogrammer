@@ -70,40 +70,42 @@ img.emoji {
             
 <div class="page-title group">
 	<div class="container">
-		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 3</a></h2>
+		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 4</a></h2>
 		
 	</div>
 </div><!--/.page-title-->		
 <div id="page">
 	<div class="container group">
         <div class="content">
-	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">July 06, 2021</div>
+	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">July 12, 2021</div>
 	        <div class="pad group">
 		        <article class="post-13 post type-post status-publish format-standard hentry category-uncategorized">	
-                    <h1 class="post-title">Computer Science Grad to SCADA Programmer</h1>	
+                    <h1 class="post-title">SMTP Profile SendGrid Fix</h1>	
                     <div class="entry">	
-                        <p>I want to give some more background on myself from how I went from a computer science grad to SCADA programmer in the industrial automation world. Also, I want to give some insight to computer programmers about different industries they can excel in that aren’t some of the popular one (mobile apps, social media, etc.). </p>
-                        <p>I am from a small town in west Texas in the heart of the oil patch. I was born and raised here. When I was picking my classes for my senior year and decided to pick a computer science class without knowing what I was getting myself into. </p>
-                        
-                        <p>In the beginner class we used different software to program Java. I thought that was the most interesting thing to see Hello World printed on the screen, which I bet that’s the case for a lot of computer programmers. Throughout the senior year we were pushed to figure out what we were going to do after high school and of course college was the direction presented most. </p>
-                        
-                        <p>After high school, I started out at a junior college and took all of my computer science courses at the university where I completed my bachelor’s in computer science. In several of the courses, teachers talked about how many jobs there were for computer programmers and jobs there would be in the future. As many of you know, there job market for computer programmers has grown and will continue to grow in the years to come. </p>
-                        
-                        <p>That all said, there isn’t much for positions for computer programmers in the heart of the oil patch. I had applied to several of the IT support jobs, knowing full well that I would need to learn a lot to do that type of job. After several months of not getting a computer programming job, I took a job at a local electrical contractor that my father in law was working at as a PLC programmer. My previous job before that was working at a parts store that took me 1 hour to get to.</p>
-                        
-                        <p>On my first day they enrolled me into a PLC programming class and learned the basics of ladder logic programming. It was a bit confusing since I learned programming in high level programming languages but I learned a lot. I didn’t get to program any PLCs during my time there but I did learn a lot about automation controls. This helped me get a position at my current company where I was one of 3 automation techs in the entire 5000+ employee company. </p>
-                            
-                        <p>This was the beginning of automation at my company and the person who hired me had to have a vision of the future of our company and how I could be an essential part of that. As the company grew we needed a way to monitor, control and collect data on all of our automated equipment. That is when our director of application development started looking for a SCADA solution for us. After looking at several different solutions we decided on Ignition, and we both are glad he did. </p>
-                        
-                        <p>We enrolled in the on site classes in 2018 to learn about the software. I had looked into other SCADA solutions myself and found that Ignition is very computer programmer friendly. I would also say that Ignition’s fast development environment is like having power tools in your computer programming toolset. </p>
-                        
-                        <p>I know that many computer programmers want to work at Google, Microsoft, etc., large tech related companies make mobile apps, any of the above, but the skills of a computer programmer can be utilized in the industrial automation world. </p>
-                        
-                        <p>I want this post and blog to enlighten computer programmers of the many possibilities of long-term and interesting work in other industries. </p>
-                        
-                        <p>I will be posting more blog posts about specific ways computer programmers that know Python, Java, Node.js, etc., can move into the industrial automation world. I hope this blog will open your mind to the other possibilities for a computer programmer. </p>
-                        
-                        <p>Until next time, continue coding. </p>
+                        <p>On 3-25-2021, we had our SMTP profile in Ignition using SendGrid start failing. I had sent a test email and viewed the logs. The screenshot below is what was showing up in the log.
+                        </p>
+                        <img src="static/images/blog4/Log Error Screenshot.jpg" alt="Log Error Screenshot">
+                        <p>As you can see from the log that I am getting a username and password error. To be more clear since the snippet doesn’t have good quality: it says <code>javax.mail.AuthenticationFailedExeption: 535 Authentication failed: Bad username / password</code>. Now that is not actually the problem here because it was working just fine, then just suddenly stopped. 
+                        </p>
+                        <p>I hope others that are using SendGrid for their email provider find this blog to fix this same problem because I bet others will have this problem as well. After doing some research into what had happened here, I found this link: <a href="https://sendgrid.com/docs/for-developers/sending-email/authentication/#basic-authentication">SendGrid Authentication</a>. Now after reading through the article you will come across this section here.
+                        </p>
+                        <img src="static/images/blog4/SendGrid Authentication Update Screenshot.jpg" alt="SendGrid Authentication Update Screenshot">
+                        <p>In the SMTP profile creation it only asks for username and password, not the API key. 
+                        </p>
+                        <img src="static/images/blog4/SMTP_Profile_Setup.jpg" alt="SMTP_Profile_Setup">
+                        <p>From the article you can see that basic authentication (using username as the ‘apikey’ and password as the API key) was discontinued in Q4 of 2020. I don’t know if there was a delay in that and that is why it continued to work with basic authentication until now. 
+                        </p>
+                        <p>After looking at the SMTP profile setup in Ignition for awhile, I contacted another programmer that works with me and got the ‘apikey’. He suggested to put ‘apikey’ in the username field and the actual API key in the password field. Here’s a snippet of that setup below.
+                        </p>
+                        <img src="static/images/blog4/SMTP_Profile_Solution.jpg" alt="SMTP_Profile_Solution">
+                        <p>Another field I had to set was the port (465) and enable SSL. After setting these fields to the values shown, emails started working again using that SMTP profile. 
+                        </p>
+                        <p>I hope other Ignition developers find this when they run into this problem. 
+                        </p>
+                        <p>To give some insight into what I think Ignition does here is use the pass in the value in the username text field as parameter names in the SendGrid API call. So when putting the ‘apikey’ as the username it sends the ‘apikey’ parameter to the SendGrid API with a value from the password text field (which is the actual API key). 
+                        </p>
+                        <p>Until next time, continue coding. 
+                        </p>
                         <div class="clear"></div>				
                     </div><!--/.entry-->
 			    </article><!--/.post-->				
@@ -119,13 +121,13 @@ img.emoji {
                     <li class="related post-hover">
                         <article class="post-11 post type-post status-publish format-standard hentry category-uncategorized">
                             <div class="post-thumbnail">
-                                <a href="blog2.html">
-                                <img src="static/images/thumb-medium.png" alt="Clear Ignition Internal Database Project Edits" />
+                                <a href="blog3.html">
+                                <img src="static/images/thumb-medium.png" alt="Computer Science Grad to SCADA Programmer" />
                                 </a>
                             </div><!--/.post-thumbnail-->
                             <div class="related-inner">
                                 <h6 class="post-title" style="font-size: 20px;">
-                                    <a href="blog2.html" rel="bookmark">Clear Ignition Internal Database Project Edits</a>
+                                    <a href="blog3.html" rel="bookmark">Computer Science Grad to SCADA Programmer</a>
                                 </h6><!--/.post-title-->
                             </div><!--/.related-inner-->
                         </article>
