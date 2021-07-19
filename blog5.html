@@ -70,39 +70,37 @@ img.emoji {
             
 <div class="page-title group">
 	<div class="container">
-		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 4</a></h2>
+		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 5</a></h2>
 		
 	</div>
 </div><!--/.page-title-->		
 <div id="page">
 	<div class="container group">
         <div class="content">
-	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">July 12, 2021</div>
+	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">July 19, 2021</div>
 	        <div class="pad group">
 		        <article class="post-13 post type-post status-publish format-standard hentry category-uncategorized">	
-                    <h1 class="post-title">SMTP Profile SendGrid Fix</h1>	
+                    <h1 class="post-title">UDT Magic: Single Alarm Tag</h1>	
                     <div class="entry">	
-                        <p>On 3-25-2021, we had our SMTP profile in Ignition using SendGrid start failing. I had sent a test email and viewed the logs. The screenshot below is what was showing up in the log.
+                        <p>When I first started working with Ignition, I did take advantage of UDTs. The number of PLCs and RTUs that were the exact same was in the 100+ range, so it only made sense to use UDTs. BUT I did not use UDTs to its full capacity. 
                         </p>
-                        <img src="static/images/blog4/Log Error Screenshot.jpg" alt="Log Error Screenshot">
-                        <p>As you can see from the log that I am getting a username and password error. To be more clear since the snippet doesn’t have good quality: it says <code>javax.mail.AuthenticationFailedExeption: 535 Authentication failed: Bad username / password</code>. Now that is not actually the problem here because it was working just fine, then just suddenly stopped. 
+                        <p>The types of equipment we have is a bunch of individual assets each with some type of processor with a lot of similarities. The similarities could be pressure tags, connected tags, alarms, etc. The type of tag I will be focusing on here is single alarm tag UDTs. 
                         </p>
-                        <p>I hope others that are using SendGrid for their email provider find this blog to fix this same problem because I bet others will have this problem as well. After doing some research into what had happened here, I found this link: <a href="https://sendgrid.com/docs/for-developers/sending-email/authentication/#basic-authentication">SendGrid Authentication</a>. Now after reading through the article you will come across this section here.
+                        <p>Now what I mean by this is a UDT definition that has only 1 tag (or at least 1 OPC tag). In the beginning I did not do this one particular asset in the beginning. Let’s say you have tanks all tied into a PLC, 30 for example. Each tank has an alarm register in the PLC so each tank can go into alarm (Either high or low). So what I did was create 30 high alarm tags, 30 low alarm tags, and 30 high high alarm tags. 
                         </p>
-                        <img src="static/images/blog4/SendGrid Authentication Update Screenshot.jpg" alt="SendGrid Authentication Update Screenshot">
-                        <p>In the SMTP profile creation it only asks for username and password, not the API key. 
+                        <p>That took a long time but I didn’t know any better at the time. There was a rush to get our SCADA system up at that time so there was a bit of a rush to get everything up. Instead of figuring out how to create multiple UDTs for one asset (UDT Instances inside another UDT definition) I created 90 tags with alarm configurations. This is very messy to maintain and troubleshoot. Ya you can copy paste a lot but you can very easily mess something up by a typo or something like that. 
                         </p>
-                        <img src="static/images/blog4/SMTP_Profile_Setup.jpg" alt="SMTP_Profile_Setup">
-                        <p>From the article you can see that basic authentication (using username as the ‘apikey’ and password as the API key) was discontinued in Q4 of 2020. I don’t know if there was a delay in that and that is why it continued to work with basic authentication until now. 
+                        <p>After some time, we made some major changes to that PLC for that asset type and that is when I realized the power of one tag UDTs. I created a UDT with one alarm tag with the OPC Path as a parameter, since each tank alarm was a different register. Also, the additional parameters included alarm name, alarm type (low, high, etc.), priority, etc. 
                         </p>
-                        <p>After looking at the SMTP profile setup in Ignition for awhile, I contacted another programmer that works with me and got the ‘apikey’. He suggested to put ‘apikey’ in the username field and the actual API key in the password field. Here’s a snippet of that setup below.
+                        <p>In these tag alarm configurations we have a lot of associated property bindings to track data with the alarm, track the region the asset is in (we operate throughout the U.S.), and custom messages configured within the tag. The associated data is beneficial to us in a big way. The region property tells the alarm pipeline which on call roster to send the notification to.
                         </p>
-                        <img src="static/images/blog4/SMTP_Profile_Solution.jpg" alt="SMTP_Profile_Solution">
-                        <p>Another field I had to set was the port (465) and enable SSL. After setting these fields to the values shown, emails started working again using that SMTP profile. 
+                        <p>Now after making one alarm tag UDT troubleshooting and modifying/adding to the tank alarm (90 alarms) is way easier and practical. 
                         </p>
-                        <p>I hope other Ignition developers find this when they run into this problem. 
+                        <p>I hope you find this tip helpful in creating your UDTs. When creating your UDTs take the time to organize them and arrange them in a way that works best for your use case. You will more than likely change tags, smaller UDTs, folder structure, etc., many times before you are ever done and this is fine.
                         </p>
-                        <p>To give some insight into what I think Ignition does here is use the pass in the value in the username text field as parameter names in the SendGrid API call. So when putting the ‘apikey’ as the username it sends the ‘apikey’ parameter to the SendGrid API with a value from the password text field (which is the actual API key). 
+                        <p>You want to create UDTs that are easy to understand and to maintain. Server months or even years later, you may have to come back to make changes or troubleshoot the UDT and you won’t remember everything you did when you created it. 
+                        </p>
+                        <p>So do yourself the favor in the beginning and take the time to plan and organize your tags into the best UDTs you can.
                         </p>
                         <p>Until next time, continue coding. 
                         </p>
@@ -121,13 +119,13 @@ img.emoji {
                     <li class="related post-hover">
                         <article class="post-11 post type-post status-publish format-standard hentry category-uncategorized">
                             <div class="post-thumbnail">
-                                <a href="blog3.html">
-                                <img src="static/images/thumb-medium.png" alt="Computer Science Grad to SCADA Programmer" />
+                                <a href="blog4.html">
+                                <img src="static/images/thumb-medium.png" alt="SMTP Profile SendGrid Fix" />
                                 </a>
                             </div><!--/.post-thumbnail-->
                             <div class="related-inner">
                                 <h6 class="post-title" style="font-size: 20px;">
-                                    <a href="blog3.html" rel="bookmark">Computer Science Grad to SCADA Programmer</a>
+                                    <a href="blog4.html" rel="bookmark">SMTP Profile SendGrid Fix</a>
                                 </h6><!--/.post-title-->
                             </div><!--/.related-inner-->
                         </article>
