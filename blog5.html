@@ -1,0 +1,258 @@
+
+<!DOCTYPE html> 
+<html class="no-js" lang="en-US">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+		
+	<title>Next Gen SCADA Programmer Blog Jacob Ramirez</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R3MWTKYLKV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-R3MWTKYLKV');
+    </script>
+<meta name='robots' content='max-image-preview:large' />
+<script>document.documentElement.className = document.documentElement.className.replace("no-js","js");</script>
+<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<!-- <link rel='stylesheet' s id='dashicons-css'  href='http://next-gen-scada-programmer-blog.local/wp-includes/css/dashicons.min.css?ver=5.7.2' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-block-library-css'  href='http://next-gen-scada-programmer-blog.local/wp-content/plugins/gutenberg/build/block-library/style.css?ver=10.8.2' type='text/css' media='all' /> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel='stylesheet' id='slanted-style-css'  href='static/css/style.css'' type='text/css' media='all' />
+<link rel='stylesheet' id='slanted-responsive-css'  href='static/css/responsive.css' type='text/css' media='all' />
+<link rel='stylesheet' id='slanted-dark-css'  href='static/css/dark.css' type='text/css' media='all' />
+<link rel='stylesheet' id='slanted-font-awesome-css'  href='static/css/all.min.css' type='text/css' media='all' />
+<script type='text/javascript' src='static/js/jquery/jquery.min.js' id='jquery-core-js'></script>
+<script type='text/javascript' src='static/js/jquery/jquery-migrate.min.js' id='jquery-migrate-js'></script>
+<script type='text/javascript' src='static/js/jquery.flexslider.min.js' id='slanted-flexslider-js'></script>
+<style id="kirki-inline-styles"></style>
+</head>
+
+<body class="home blog logged-in no-customize-support col-1c full-width">
+    <a class="skip-link screen-reader-text" href="#page">Skip to content</a>
+
+    <div id="wrapper">
+        <div id="wrapper-inner">
+            <header id="header" class="group">
+        
+                <div class="slant-left"></div>
+                <div class="slant-right"></div>
+                <div class="container group">
+                    <div class="group pad">
+                        <h1 class="site-title"><a href="index.html" rel="home">Next Gen SCADA Programmer Blog</a></h1>
+                        <p class="site-description">Jacob Ramirez</p>             
+                        <div class="clear"></div>                    
+                    </div><!--/.pad-->
+                </div><!--/.container-->
+            </header><!--/#header-->
+            <div id="subheader">	
+                <div class="container"></div>
+            </div><!--/#subheader-->
+            
+            
+<div class="page-title group">
+	<div class="container">
+		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 5</a></h2>
+		
+	</div>
+</div><!--/.page-title-->		
+<div id="page">
+	<div class="container group">
+        <div class="content">
+	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">July 19, 2021</div>
+	        <div class="pad group">
+		        <article class="post-13 post type-post status-publish format-standard hentry category-uncategorized">	
+                    <h1 class="post-title">UDT Magic: Single Alarm Tag</h1>	
+                    <div class="entry">	
+                        <p>When I first started working with Ignition, I did take advantage of UDTs. The number of PLCs and RTUs that were the exact same was in the 100+ range, so it only made sense to use UDTs. BUT I did not use UDTs to its full capacity. 
+                        </p>
+                        <p>The types of equipment we have is a bunch of individual assets each with some type of processor with a lot of similarities. The similarities could be pressure tags, connected tags, alarms, etc. The type of tag I will be focusing on here is single alarm tag UDTs. 
+                        </p>
+                        <p>Now what I mean by this is a UDT definition that has only 1 tag (or at least 1 OPC tag). In the beginning I did not do this one particular asset in the beginning. Let’s say you have tanks all tied into a PLC, 30 for example. Each tank has an alarm register in the PLC so each tank can go into alarm (Either high or low). So what I did was create 30 high alarm tags, 30 low alarm tags, and 30 high high alarm tags. 
+                        </p>
+                        <p>That took a long time but I didn’t know any better at the time. There was a rush to get our SCADA system up at that time so there was a bit of a rush to get everything up. Instead of figuring out how to create multiple UDTs for one asset (UDT Instances inside another UDT definition) I created 90 tags with alarm configurations. This is very messy to maintain and troubleshoot. Ya you can copy paste a lot but you can very easily mess something up by a typo or something like that. 
+                        </p>
+                        <p>After some time, we made some major changes to that PLC for that asset type and that is when I realized the power of one tag UDTs. I created a UDT with one alarm tag with the OPC Path as a parameter, since each tank alarm was a different register. Also, the additional parameters included alarm name, alarm type (low, high, etc.), priority, etc. 
+                        </p>
+                        <p>In these tag alarm configurations we have a lot of associated property bindings to track data with the alarm, track the region the asset is in (we operate throughout the U.S.), and custom messages configured within the tag. The associated data is beneficial to us in a big way. The region property tells the alarm pipeline which on call roster to send the notification to.
+                        </p>
+                        <p>Now after making one alarm tag UDT troubleshooting and modifying/adding to the tank alarm (90 alarms) is way easier and practical. 
+                        </p>
+                        <p>I hope you find this tip helpful in creating your UDTs. When creating your UDTs take the time to organize them and arrange them in a way that works best for your use case. You will more than likely change tags, smaller UDTs, folder structure, etc., many times before you are ever done and this is fine.
+                        </p>
+                        <p>You want to create UDTs that are easy to understand and to maintain. Server months or even years later, you may have to come back to make changes or troubleshoot the UDT and you won’t remember everything you did when you created it. 
+                        </p>
+                        <p>So do yourself the favor in the beginning and take the time to plan and organize your tags into the best UDTs you can.
+                        </p>
+                        <p>Until next time, continue coding. 
+                        </p>
+                        <div class="clear"></div>				
+                    </div><!--/.entry-->
+			    </article><!--/.post-->				
+		    <div class="clear"></div>
+		    <div class="clear"></div>
+
+                <!--/. related posts, which link to the previous post -->
+                <h4 class="heading">
+                    <i class="fas fa-hand-point-right">
+                    </i>You may also like...
+                </h4>
+                <ul class="related-posts group">
+                    <li class="related post-hover">
+                        <article class="post-11 post type-post status-publish format-standard hentry category-uncategorized">
+                            <div class="post-thumbnail">
+                                <a href="blog4.html">
+                                <img src="static/images/thumb-medium.png" alt="SMTP Profile SendGrid Fix" />
+                                </a>
+                            </div><!--/.post-thumbnail-->
+                            <div class="related-inner">
+                                <h6 class="post-title" style="font-size: 20px;">
+                                    <a href="blog4.html" rel="bookmark">SMTP Profile SendGrid Fix</a>
+                                </h6><!--/.post-title-->
+                            </div><!--/.related-inner-->
+                        </article>
+                    </li><!--/.related-->
+                </ul><!--/.post-related-->
+            </div><!--pad-group-->
+        </div><!--content-->
+    </div><!--container-group-->
+</div><!--page-->
+
+           
+            <footer id="footer" class="dark">
+                <!-- Quantcast Tag -->
+                <script type="text/javascript">
+                    window._qevents = window._qevents || [];
+                    
+                    (function() {
+                    var elem = document.createElement('script');
+                    elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
+                    elem.async = true;
+                    elem.type = "text/javascript";
+                    var scpt = document.getElementsByTagName('script')[0];
+                    scpt.parentNode.insertBefore(elem, scpt);
+                    })();
+                    
+                    window._qevents.push({
+                    qacct:"p-Lfy9qP0C21dCK",
+                    uid:"jacob.ramirez.2020@gmail.com"
+                    });
+                </script>
+                    
+                <noscript>
+                    <div style="display:none;">
+                    <img src="//pixel.quantserve.com/pixel/p-Lfy9qP0C21dCK.gif" border="0" height="1" width="1" alt="Quantcast"/>
+                    </div>
+                </noscript>
+                <!-- End Quantcast tag -->
+                <div id="footer-bottom">
+                    <div class="container">
+                        <a id="back-to-top" href="#"><i class="arrow up"></i></a>		
+                        <div class="pad group">
+                            <div class="grid one-half">
+                                <div id="copyright">
+                                    <p>Next Gen SCADA Programmer Blog &copy; 2021.<br>All Rights Reserved.</p>
+                                </div><!--/#copyright-->
+                            </div>
+                            <div class="grid one-half last"></div>
+                        </div><!--/.pad-->
+                    </div><!--/.container-->
+                </div><!--/.footer-bottom-->
+            </footer><!--/#footer-->
+        </div><!--/#wrapper-inner-->
+    </div><!--/#wrapper-->
+    <style id="skip-link-styles">
+    .skip-link.screen-reader-text {
+        border: 0;
+        clip: rect(1px,1px,1px,1px);
+        clip-path: inset(50%);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute !important;
+        width: 1px;
+        word-wrap: normal !important;
+    }
+
+    .skip-link.screen-reader-text:focus {
+        background-color: #eee;
+        clip: auto !important;
+        clip-path: none;
+        color: #444;
+        display: block;
+        font-size: 1em;
+        height: auto;
+        left: 5px;
+        line-height: normal;
+        padding: 15px 23px 14px;
+        text-decoration: none;
+        top: 5px;
+        width: auto;
+        z-index: 100000;
+    }
+    </style>
+    <script>
+        ( function() {
+            var skipLinkTarget = document.querySelector( 'main' ),
+                parentEl,
+                skipLinkTargetID,
+                skipLink;
+
+            // Early exit if a skip-link target can't be located.
+            if ( ! skipLinkTarget ) {
+                return;
+            }
+
+            // Get the site wrapper.
+            // The skip-link will be injected in the beginning of it.
+            parentEl = document.querySelector( '.wp-site-blocks' ) || document.body,
+
+            // Get the skip-link target's ID, and generate one if it doesn't exist.
+            skipLinkTargetID = skipLinkTarget.id;
+            if ( ! skipLinkTargetID ) {
+                skipLinkTargetID = 'wp--skip-link--target';
+                skipLinkTarget.id = skipLinkTargetID;
+            }
+
+            // Create the skip link.
+            skipLink = document.createElement( 'a' );
+            skipLink.classList.add( 'skip-link', 'screen-reader-text' );
+            skipLink.href = '#' + skipLinkTargetID;
+            skipLink.innerHTML = 'Skip to content';
+
+            // Inject the skip link.
+            parentEl.insertAdjacentElement( 'afterbegin', skipLink );
+        }() );
+    </script>
+    <script type='text/javascript' src='static/js/hoverIntent.js' id='hoverintent-js-js'></script>
+    <script type='text/javascript' src='static/js/admin-bar.min.js' id='admin-bar-js'></script>
+    <script type='text/javascript' src='static/js/jquery.fitvids.js' id='slanted-fitvids-js'></script>
+    <script type='text/javascript' src='static/js/scripts.js' id='slanted-scripts-js'></script>
+    <script type='text/javascript' src='static/js/nav.js' id='slanted-nav-script-js'></script>
+    <script type='text/javascript' src='static/js/wp-embed.min.js' id='wp-embed-js'></script>
+    <script>
+        /(trident|msie)/i.test(navigator.userAgent)&&document.getElementById&&window.addEventListener&&window.addEventListener("hashchange",function(){var t,e=location.hash.substring(1);/^[A-z0-9_-]+$/.test(e)&&(t=document.getElementById(e))&&(/^(?:a|select|input|button|textarea)$/i.test(t.tagName)||(t.tabIndex=-1),t.focus())},!1);
+    </script>
+
+
+</body>
+</html>

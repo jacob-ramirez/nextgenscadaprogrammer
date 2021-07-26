@@ -1,0 +1,305 @@
+
+<!DOCTYPE html> 
+<html class="no-js" lang="en-US">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+		
+	<title>Next Gen SCADA Programmer Blog Jacob Ramirez</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R3MWTKYLKV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-R3MWTKYLKV');
+    </script>
+<meta name='robots' content='max-image-preview:large' />
+<script>document.documentElement.className = document.documentElement.className.replace("no-js","js");</script>
+<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<!-- <link rel='stylesheet' s id='dashicons-css'  href='http://next-gen-scada-programmer-blog.local/wp-includes/css/dashicons.min.css?ver=5.7.2' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-block-library-css'  href='http://next-gen-scada-programmer-blog.local/wp-content/plugins/gutenberg/build/block-library/style.css?ver=10.8.2' type='text/css' media='all' /> -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel='stylesheet' id='slanted-style-css'  href='static/css/style.css'' type='text/css' media='all' />
+<link rel='stylesheet' id='slanted-responsive-css'  href='static/css/responsive.css' type='text/css' media='all' />
+<link rel='stylesheet' id='slanted-dark-css'  href='static/css/dark.css' type='text/css' media='all' />
+<link rel='stylesheet' id='slanted-font-awesome-css'  href='static/css/all.min.css' type='text/css' media='all' />
+<script type='text/javascript' src='static/js/jquery/jquery.min.js' id='jquery-core-js'></script>
+<script type='text/javascript' src='static/js/jquery/jquery-migrate.min.js' id='jquery-migrate-js'></script>
+<script type='text/javascript' src='static/js/jquery.flexslider.min.js' id='slanted-flexslider-js'></script>
+<style id="kirki-inline-styles"></style>
+</head>
+
+<body class="home blog logged-in no-customize-support col-1c full-width">
+    <a class="skip-link screen-reader-text" href="#page">Skip to content</a>
+
+    <div id="wrapper">
+        <div id="wrapper-inner">
+            <header id="header" class="group">
+        
+                <div class="slant-left"></div>
+                <div class="slant-right"></div>
+                <div class="container group">
+                    <div class="group pad">
+                        <h1 class="site-title"><a href="index.html" rel="home">Next Gen SCADA Programmer Blog</a></h1>
+                        <p class="site-description">Jacob Ramirez</p>             
+                        <div class="clear"></div>                    
+                    </div><!--/.pad-->
+                </div><!--/.container-->
+            </header><!--/#header-->
+            <div id="subheader">	
+                <div class="container"></div>
+            </div><!--/#subheader-->
+            
+            
+<div class="page-title group">
+	<div class="container">
+		<h2><a href="http://next-gen-scada-programmer-blog.local/category/uncategorized/" rel="category tag">Blog 6</a></h2>
+		
+	</div>
+</div><!--/.page-title-->		
+<div id="page">
+	<div class="container group">
+        <div class="content">
+	        <div class="post-time pad group" style="margin-bottom: 0px; padding-bottom: 0px;">July 26, 2021</div>
+	        <div class="pad group">
+		        <article class="post-13 post type-post status-publish format-standard hentry category-uncategorized">	
+                    <h1 class="post-title">Client IP Addresses from Gateway Script</h1>	
+                    <div class="entry">	
+                        <p>In the industry I’m in, oil and gas, there is a lot of cellular connectivity to devices in the field. When you have 1000s of remote assets/sites the data usage tends to run high. Then you would need to keep an eye on it. I don’t know if this is somewhat unique to where I work but we use the cellular modem on the asset as our internet connection to the cloud SCADA system. This is something that happens a lot but not all the time. </p>
+                        <p>After a while of using Ignition we noticed data usage on some sims running very high. We were able to cross reference these sims with our assets and found the exact assets. Come to find out the only sims that ran high were the modems that were being used to poll data on the asset and to run an Ignition HMI. </p>
+                        <p>Then we did a test of running the HMI for hours to days and watched the data usage. The numbers were very high and surprising. We didn’t think that the high data usage came from running the HMI but that turned out to be the case. The default polling rate of Ignition uses for tags from a client is about 1 second. Which is what you want when you need real time data. This was close to 1 GB in a 24 hour time span. </p>
+                        <p>Now we want to know the IP address of the device running an Ignition client to cross reference with an IP for an asset in our Ignition gateway. From the gateway you can see the IP address for the client next to the hostname which is great but when you have 50+ client sessions at once and connections come and go throughout the day/night, that’s not the best way of getting that info. </p>
+                        <p>There is a built in Ignition function to get the client sessions called system.util.getSessionInfo() and returns back a dataset with these columns: username, project, address, isDesigner, clientId, and creationTime. You would think the address column would give you the IP address of the client but it only provides the hostname of the computer. If that hostname is just a bunch of letters and numbers, it has no meaning to you unless you have a list of all available laptops. </p>
+                        <p>From the user manual: (https://docs.inductiveautomation.com/display/DOC79/system.util.getSessionInfo): </p>
+                        <p><code>system.util.getSessionInfo([usernameFilter] [, projectFilter])</code><br><br>
+                            Parameters<br>
+                            &emsp;&emsp;&emsp;String <code>usernameFilter</code> - A regular-expression based filter string to restrict the list by username. [optional]<br>
+                            &emsp;&emsp;&emsp;String <code>projectFilter</code> - A regular-expression based filter string to restrict the list by project [optional]<br><br>
+                            Returns<br>
+                            &emsp;&emsp;&emsp;PyDataSet - A dataset representing the Gateway's current sessions.<br><br>
+                            Scope<br>
+                            &emsp;&emsp;&emsp;All<br><br>
+                            The PyDataSet returned has these columns:
+                            <ul>
+                            <li><code>username</code> (String)</li>
+                            <li><code>project</code> (String)</li>
+                            <li><code>address</code> (String)</li>
+                            <li><code>isDesigner</code> (Boolean)</li>
+                            <li><code>clientId</code> (String)</li>
+                            <li><code>creationTime</code> (Date)</li>
+                            </ul>
+                        </p>
+                        <p>You can see that this function is great but is lacking the actual IP address of the user. If the gateway had the IP address next to the hostname, I knew I could retrieve it somehow. This is where I started to look into the API to get this info. From the code below, I get the sessions from the application scope from the Ignition gateway function <code>getGatewaySessionManager()</code> and <code>findSessions()</code>. After that I prepare my SQL insert statement to store the info in a database table.</p>
+                        <p>Now I loop through the returned client sessions (for session in sessions:) and check that against the sessions returned from system.util.getSessionInfo() so I can easily get the username and creation time. This code runs every 15 minutes and before it actually inserts the data into the database it checks if that clientId is already in there, if it is don’t insert it, otherwise insert it. You can find this code at https://github.com/jacob-ramirez/blog-sample-code/blob/master/Blog6/cody.py.</p> 
+                        <p>This has been a life saver in being able to look at historical client sessions and what IP address they were using. I hope this helps others that need to see a user's IP address and not have to manually log into the gateway to find it. </p>
+                        <p>Until next time, continue coding. </p>
+                        <p>
+                        <code>
+                            <code># This is to get the gateway version</code><br>
+                            <code>ver = system.net.httpGet('http://172.18.16.80:8088/main/system/gwinfo')</code><br>
+                            <code>ver = ver.split(';')[3].split('=')[1][0]</code><br>
+                            <codep>if ver == "7":</code><br>
+                                <code>from com.inductiveautomation.ignition.gateway import SRContext</code><br>
+                                <code>sessionManager = SRContext.get().getGatewaySessionManager()</code><br>
+                            <code>else:</code><br>
+                                <code># Line below is for Ignition 8</code><br>
+                                <code>from com.inductiveautomation.ignition.gateway import IgnitionGateway</code><br>
+                                <code>sessionManager = IgnitionGateway.get().getGatewaySessionManager()</code><br>
+                            <code># java.util.List<ClientReqSession> findSessions(int scope)</code><br>
+                            <code>from com.inductiveautomation.ignition.common.model import ApplicationScope</code><br>
+                            <code>sessions = sessionManager.findSessions(ApplicationScope.CLIENT)</code><br>
+                            
+                            <code># Get Database connection strings</code><br>
+                            <code>dbRead = system.tag.read("Databases/Read/Log_X").value</code><br>
+                            <code>dbWrite = system.tag.read("Databases/Write/Log_X").value</code><br>
+                            <code>sql = "INSERT INTO SCADA_LOG_X.UserSessions (UTCTimeStamp, CSTTimeStamp, CSTCreationDate, Username, ClientId, Hostname, IPAddress) VALUES (?, ?, ?, ?, ?, ?, ?)"</code><br>
+                            <code># Loop through all the vision client sessions</code><br>
+                            <code>for session in sessions:</code><br>
+                                <code>clientID = session.getPublicId()</code><br>
+                                <code># Now call the built in session info function to get [username, address (hostname), clientId, creationTime]</code><br>
+                                <code>for row in system.util.getSessionInfo():</code><br>
+                                    <code>if row["clientId"] == clientID:</code><br>
+                                        <code>timeStampCST = system.date.now()</code><br>
+                                        <code>timeStampUTC = system.date.addHours(timeStampCST, abs(int(system.date.getTimezoneOffset())))</code><br>
+                                        <code>creationDateCST = row["creationTime"]</code><br>
+                                        <code>username = row["username"]</code><br>
+                                        <code>hostname = row["address"]</code><br>
+                            
+                                        <code># Function from ApplicationScope class</code><br>
+                                        <code>ip = session.getAttribute('remoteAddr')</code><br>
+                            
+                                        <code># Now check if that client ID is not already in the database</code><br>
+                                        <code>rowCountInDB = int(str(system.db.runScalarPrepQuery("SELECT COUNT(*) FROM SCADA_LOG_X.UserSessions WHERE ClientId = ? AND Username = ?", [clientID, username], dbRead)))</code><br>
+                                        <code>if rowCountInDB == 0:</code><br>
+                                            <code># It's not in the db already, so now insert a new row</code><br>
+                                            <code>system.db.runPrepUpdate(sql, [timeStampUTC, timeStampCST, creationDateCST, username, clientID, hostname, ip], dbWrite)</code>
+                        </p>
+                        <div class="clear"></div>				
+                    </div><!--/.entry-->
+			    </article><!--/.post-->				
+		    <div class="clear"></div>
+		    <div class="clear"></div>
+
+                <!--/. related posts, which link to the previous post -->
+                <h4 class="heading">
+                    <i class="fas fa-hand-point-right">
+                    </i>You may also like...
+                </h4>
+                <ul class="related-posts group">
+                    <li class="related post-hover">
+                        <article class="post-11 post type-post status-publish format-standard hentry category-uncategorized">
+                            <div class="post-thumbnail">
+                                <a href="blog5.html">
+                                <img src="static/images/thumb-medium.png" alt="UDT Magic: Single Alarm Tag" />
+                                </a>
+                            </div><!--/.post-thumbnail-->
+                            <div class="related-inner">
+                                <h6 class="post-title" style="font-size: 20px;">
+                                    <a href="blog5.html" rel="bookmark">UDT Magic: Single Alarm Tag</a>
+                                </h6><!--/.post-title-->
+                            </div><!--/.related-inner-->
+                        </article>
+                    </li><!--/.related-->
+                </ul><!--/.post-related-->
+            </div><!--pad-group-->
+        </div><!--content-->
+    </div><!--container-group-->
+</div><!--page-->
+
+           
+            <footer id="footer" class="dark">
+                <!-- Quantcast Tag -->
+                <script type="text/javascript">
+                    window._qevents = window._qevents || [];
+                    
+                    (function() {
+                    var elem = document.createElement('script');
+                    elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
+                    elem.async = true;
+                    elem.type = "text/javascript";
+                    var scpt = document.getElementsByTagName('script')[0];
+                    scpt.parentNode.insertBefore(elem, scpt);
+                    })();
+                    
+                    window._qevents.push({
+                    qacct:"p-Lfy9qP0C21dCK",
+                    uid:"jacob.ramirez.2020@gmail.com"
+                    });
+                </script>
+                    
+                <noscript>
+                    <div style="display:none;">
+                    <img src="//pixel.quantserve.com/pixel/p-Lfy9qP0C21dCK.gif" border="0" height="1" width="1" alt="Quantcast"/>
+                    </div>
+                </noscript>
+                <!-- End Quantcast tag -->
+                <div id="footer-bottom">
+                    <div class="container">
+                        <a id="back-to-top" href="#"><i class="arrow up"></i></a>		
+                        <div class="pad group">
+                            <div class="grid one-half">
+                                <div id="copyright">
+                                    <p>Next Gen SCADA Programmer Blog &copy; 2021.<br>All Rights Reserved.</p>
+                                </div><!--/#copyright-->
+                            </div>
+                            <div class="grid one-half last"></div>
+                        </div><!--/.pad-->
+                    </div><!--/.container-->
+                </div><!--/.footer-bottom-->
+            </footer><!--/#footer-->
+        </div><!--/#wrapper-inner-->
+    </div><!--/#wrapper-->
+    <style id="skip-link-styles">
+    .skip-link.screen-reader-text {
+        border: 0;
+        clip: rect(1px,1px,1px,1px);
+        clip-path: inset(50%);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute !important;
+        width: 1px;
+        word-wrap: normal !important;
+    }
+
+    .skip-link.screen-reader-text:focus {
+        background-color: #eee;
+        clip: auto !important;
+        clip-path: none;
+        color: #444;
+        display: block;
+        font-size: 1em;
+        height: auto;
+        left: 5px;
+        line-height: normal;
+        padding: 15px 23px 14px;
+        text-decoration: none;
+        top: 5px;
+        width: auto;
+        z-index: 100000;
+    }
+    </style>
+    <script>
+        ( function() {
+            var skipLinkTarget = document.querySelector( 'main' ),
+                parentEl,
+                skipLinkTargetID,
+                skipLink;
+
+            // Early exit if a skip-link target can't be located.
+            if ( ! skipLinkTarget ) {
+                return;
+            }
+
+            // Get the site wrapper.
+            // The skip-link will be injected in the beginning of it.
+            parentEl = document.querySelector( '.wp-site-blocks' ) || document.body,
+
+            // Get the skip-link target's ID, and generate one if it doesn't exist.
+            skipLinkTargetID = skipLinkTarget.id;
+            if ( ! skipLinkTargetID ) {
+                skipLinkTargetID = 'wp--skip-link--target';
+                skipLinkTarget.id = skipLinkTargetID;
+            }
+
+            // Create the skip link.
+            skipLink = document.createElement( 'a' );
+            skipLink.classList.add( 'skip-link', 'screen-reader-text' );
+            skipLink.href = '#' + skipLinkTargetID;
+            skipLink.innerHTML = 'Skip to content';
+
+            // Inject the skip link.
+            parentEl.insertAdjacentElement( 'afterbegin', skipLink );
+        }() );
+    </script>
+    <script type='text/javascript' src='static/js/hoverIntent.js' id='hoverintent-js-js'></script>
+    <script type='text/javascript' src='static/js/admin-bar.min.js' id='admin-bar-js'></script>
+    <script type='text/javascript' src='static/js/jquery.fitvids.js' id='slanted-fitvids-js'></script>
+    <script type='text/javascript' src='static/js/scripts.js' id='slanted-scripts-js'></script>
+    <script type='text/javascript' src='static/js/nav.js' id='slanted-nav-script-js'></script>
+    <script type='text/javascript' src='static/js/wp-embed.min.js' id='wp-embed-js'></script>
+    <script>
+        /(trident|msie)/i.test(navigator.userAgent)&&document.getElementById&&window.addEventListener&&window.addEventListener("hashchange",function(){var t,e=location.hash.substring(1);/^[A-z0-9_-]+$/.test(e)&&(t=document.getElementById(e))&&(/^(?:a|select|input|button|textarea)$/i.test(t.tagName)||(t.tabIndex=-1),t.focus())},!1);
+    </script>
+
+
+</body>
+</html>
